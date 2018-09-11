@@ -19,7 +19,9 @@ import java.util.logging.Logger;
  * @author fno
  */
 public class Client {
+    private static ClientListener listener;
     public static void main(String[] args){
+        Socket socket =null;
          BufferedReader inFromUser
                 = new BufferedReader(new InputStreamReader(System.in));
         try {
@@ -29,43 +31,37 @@ public class Client {
             }else{
                 host = "localhost";
             }
-            Socket socket = new Socket(host,8010);
+            socket = new Socket(host,8010);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
             if(socket.isConnected()){
-                System.out.println("Socket is connected ");
-                System.out.println("Make Client thread here");
+            
+                listener = new ClientListener(in);
+                listener.start();
+                System.out.println("Listener activated...");
             }
-           
-           String intro = "";
-           int i =2;
-            while(i!=0){
-                intro = in.readLine();
-                System.out.println(intro);
-                i--;
-            }
+         
             
             String fromClient = "";
-            while(true){
-               // System.out.println("in main");
+            while(listener.isAlive()){
+               
                 fromClient = inFromUser.readLine();
                // System.out.println("from Client : " + fromClient);
-                out.println(fromClient);
-                out.flush();
-                
-                String str = in.readLine();
-                if(str ==null){
-                    break;
+                if(listener.isAlive()){
+                    out.println(fromClient);
+                    out.flush();
                 }
-                else{
-                    System.out.println(str);
-                }
-                
-              //  out.print("[Client] " + System.in);
-              //  out.flush();
+
             }
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        finally{
+            try {
+                socket.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 }

@@ -17,6 +17,7 @@ import java.util.logging.Logger;
  *
  * @author fno
  * Source : "Object-Oriented Software Development Using Java" - Xiaoping Jia
+ * 
  */
 public class Server {
     static protected Set activeClients = new HashSet();
@@ -24,7 +25,7 @@ public class Server {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+       
         int i =  1;
         try {
             ServerSocket s = new ServerSocket(8010);
@@ -41,5 +42,6 @@ public class Server {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
     
 }

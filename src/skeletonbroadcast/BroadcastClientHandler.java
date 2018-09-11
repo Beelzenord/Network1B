@@ -24,7 +24,9 @@ public class BroadcastClientHandler extends Thread{
     protected int id;
     protected BufferedReader in;
     protected PrintWriter out;
+    protected boolean clientWantsOut;
     public BroadcastClientHandler(Socket incoming, int id){
+        this.clientWantsOut = false;
         this.incoming = incoming;
         this.id = id;
         if(incoming!=null){
@@ -50,28 +52,29 @@ public class BroadcastClientHandler extends Thread{
             sendMessage("Hello! This Java BroadcastEchoServer");
             sendMessage("Enter BYE to exit");
                 try {
-                    while(true){
+                    while(!clientWantsOut){
                         String str =  in.readLine();
                        
-                        if(str==null){                  
+                        if(str==null){ 
                             break;
+                        }
+                        else if(str.charAt(0)== '/'){
+                           
+                            serverCommands(str.trim().substring(1).toUpperCase());
+                            System.out.println("Command");
                         }
                         else{
                             sendMessage("Echo: " + str);
-                            if(str.trim().equals("BYE")){
+                            if(str.trim().toUpperCase().equals("BYE")){
                                 break;
                             }
                             else{
-                                Iterator iter = Server.activeClients.iterator();
-                            while(iter.hasNext()){
-                                BroadcastClientHandler t = (BroadcastClientHandler) iter.next();
-                                if(t!=this){
-                                    t.sendMessage("Broadcast(" + id + "): " + str);
-                                }
-                            }
-                         }
+                                doBroadcast("Broadcast(" + id + "): " +str);
+                          }
                         }
                     }
+                    sendMessage("[from Server]=> BYE");
+                    doBroadcast("User: " + id + " signing off");
                     incoming.close();
                     Server.activeClients.remove(this);
                 } catch (IOException ex) {
@@ -79,6 +82,25 @@ public class BroadcastClientHandler extends Thread{
                 }
             
         }
+    }
+
+    private void serverCommands(String subSequence) {
+        
+        switch(subSequence){
+            case "QUIT": clientWantsOut=true;break;
+            default:break;
+        }
+        
+    }
+
+    private void doBroadcast(String string) {
+       Iterator iter = Server.activeClients.iterator();
+       while(iter.hasNext()){
+           BroadcastClientHandler t = (BroadcastClientHandler) iter.next();
+           if(t!=this){
+             t.sendMessage(string);
+           }
+       }
     }
     
 }

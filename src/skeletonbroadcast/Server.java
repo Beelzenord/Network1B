@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 /**
  *
  * @author fno
+ * Source : "Object-Oriented Software Development Using Java" - Xiaoping Jia
  */
 public class Server {
     static protected Set activeClients = new HashSet();

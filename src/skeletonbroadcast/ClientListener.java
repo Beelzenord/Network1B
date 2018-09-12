@@ -7,6 +7,9 @@ package skeletonbroadcast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,12 +28,23 @@ public class ClientListener extends Thread{
        
             try {
                  while(true){
-                     String toClient = in.readLine();
-                     System.out.println(toClient);
-                     if(toClient==null){
+                     Object toClient = in.readLine();
+                      if(toClient instanceof ArrayList<?>){
+                         ArrayList<String> tmp = (ArrayList<String>) toClient;
+                         Iterator iter = tmp.iterator();
+                         while(iter.hasNext()){
+                             System.out.println(iter.next());     
+                         }
+                     }
+                      else if(toClient instanceof String){
+                         System.out.println(((String) toClient).trim());   
+                     }
+                     else if(toClient==null){
                          System.out.println("BREAK OFF");
                          break;
                      }
+                    
+                     
                  }
                 
             } catch (IOException ex) {

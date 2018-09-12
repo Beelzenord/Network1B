@@ -46,7 +46,7 @@ public class Client {
             while(listener.isAlive()){
                
                 fromClient = inFromUser.readLine();
-               // System.out.println("from Client : " + fromClient);
+               // Sy stem.out.println("from Client : " + fromClient);
                 if(listener.isAlive()){
                     out.println(fromClient);
                     out.flush();

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package skeletonbroadcast;
+//package skeletonbroadcast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,8 +11,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -34,12 +32,11 @@ public class Client {
             socket = new Socket(host,8010);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-            if(socket.isConnected()){ // if the conncetion is successful then we start a listener thread
-                                  
+            if(socket.isConnected()){// if the conncetion is successful then we start a listener thread
+            
                 listener = new ClientListener(in);
                 listener.start();
-                System.out.println("Listener activated....");
-                System.out.println("initiate");
+                System.out.println("Listener activated...");
             }
          
             
@@ -55,13 +52,15 @@ public class Client {
 
             }
         } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Could not establish connection to server");
+            ex.printStackTrace();
         }
         finally{
             try {
-                socket.close();
+                if (socket != null)
+                    socket.close();
             } catch (IOException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace();
             }
         }
     }

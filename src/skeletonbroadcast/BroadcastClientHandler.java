@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package skeletonbroadcast;
+//package skeletonbroadcast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -88,22 +88,45 @@ public class BroadcastClientHandler extends Thread{
                     incoming.close();
                     Server.activeClients.remove(this);
                 } catch (IOException ex) {
-                    Logger.getLogger(BroadcastClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+                    System.out.println("Client handler run method");
+                    ex.printStackTrace();
+                } finally {
+                    try {
+                        if (in != null)
+                            in.close();
+                        if (out != null)
+                            out.close();
+                    } catch (IOException ex) {
+                        System.out.println("could not close in stream in client handler");
+                    } 
                 }
             
         }
     }
 
     private void serverCommands(String subSequence) {
-        
-        switch(subSequence){
-            case "QUIT": clientWantsOut=true;break;
-            case "WHO":sendObject();System.out.println("who is there");break;
-            case "NAME": break;
-            default: sendMessage("Command not recognized");break;
+        String[] received = subSequence.split(" ");
+        try {
+            switch(received[0]){
+                case "QUIT": 
+                    clientWantsOut=true;
+                    break;
+                case "WHO":
+                    System.out.println("who is there");
+                    break;
+                case "NAME": 
+                    this.nickName = received[1];
+                    break;
+                default: 
+                    sendMessage("Command not recognized");
+                    break;
+            }
+        } catch (ArrayIndexOutOfBoundsException ex ){
+            ex.printStackTrace();
         }
         
     }
+    
 
     private void doBroadcast(String string) {
        Iterator iter = Server.activeClients.iterator();

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package skeletonbroadcast;
+//package skeletonbroadcast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,41 +16,36 @@ import java.util.logging.Logger;
 /**
  *
  * @author fno
+ * this class displays text to the user asynchronously while the main
+ * Client thread may write to it
  */
-public class ClientListener extends Thread {
-
-    private BufferedReader in;
-
-    public ClientListener(BufferedReader incomingStream) {
+public class ClientListener extends Thread{
+    private BufferedReader in ;
+    public ClientListener(BufferedReader incomingStream){
         this.in = incomingStream;
     }
 
     @Override
     public void run() {
-
-        try {
-            while (true) {
-                System.out.println("hello");
-                Object toClient = in.readLine();
-                if (toClient instanceof ArrayList<?>) {
-                    ArrayList<String> tmp = (ArrayList<String>) toClient;
-                    Iterator iter = tmp.iterator();
-                    while (iter.hasNext()) {
-                        System.out.println(iter.next());
-                    }
-                } else if (toClient instanceof String) {
-                    System.out.println(((String) toClient).trim());
-                } else if (toClient == null) {
-                    System.out.println("BREAK OFF");
-                    break;
-                }
-
+       
+            try {
+                 while(true){
+                     String toClient = in.readLine();
+                     System.out.println(((String) toClient).trim());   
+                     if(toClient==null){
+                         System.out.println("BREAK OFF");
+                         break;
+                     }
+                    
+                     
+                 }
+                
+            } catch (IOException ex) {
+                Logger.getLogger(ClientListener.class.getName()).log(Level.SEVERE, null, ex);
             }
-
-        } catch (IOException ex) {
-            Logger.getLogger(ClientListener.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
+            
+        
     }
-
+    
+    
 }

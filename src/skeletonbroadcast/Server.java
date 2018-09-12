@@ -3,13 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package skeletonbroadcast;
+//package skeletonbroadcast;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,7 +23,9 @@ import java.util.logging.Logger;
  */
 public class Server {
     static protected Set activeClients = new HashSet();
-    
+    public static synchronized Iterator getIterableOfClients(){
+        return activeClients.iterator();
+    }
    
     /**
      * 

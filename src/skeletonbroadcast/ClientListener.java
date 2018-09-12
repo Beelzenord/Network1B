@@ -15,37 +15,42 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author fno
- * this class displays text to the user asynchronously while the main
- * Client thread may write to it
+ * @author fno this class displays text to the user asynchronously while the
+ * main Client thread may write to it
  */
-public class ClientListener extends Thread{
-    private BufferedReader in ;
-    public ClientListener(BufferedReader incomingStream){
+public class ClientListener extends Thread {
+
+    private BufferedReader in;
+
+    public ClientListener(BufferedReader incomingStream) {
         this.in = incomingStream;
     }
 
     @Override
     public void run() {
-       
-            try {
-                 while(true){
-                     String toClient = in.readLine();
-                     System.out.println(((String) toClient).trim());   
-                     if(toClient==null){
-                         System.out.println("BREAK OFF");
-                         break;
-                     }
-                    
-                     
-                 }
-                
-            } catch (IOException ex) {
-                Logger.getLogger(ClientListener.class.getName()).log(Level.SEVERE, null, ex);
+        try {
+            while (true) {
+                String toClient = in.readLine();
+                System.out.println(((String) toClient).trim());
+                if (toClient == null) {
+                    System.out.println("BREAK OFF");
+                    break;
+                }
+
             }
-            
-        
+
+        } catch (IOException ex) {
+            System.out.println("Client listener IOE");
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException ex) {
+                System.out.println("could not close incomingStream");
+            }
+        }
+
     }
-    
-    
+
 }

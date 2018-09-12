@@ -29,6 +29,7 @@ public class BroadcastClientHandler extends Thread{
     protected boolean clientWantsOut;
     protected UserInfo currentUser;
     protected ObjectOutputStream os;
+    protected String nickName;
     public BroadcastClientHandler(Socket incoming, int id){
         this.clientWantsOut = false;
         this.incoming = incoming;

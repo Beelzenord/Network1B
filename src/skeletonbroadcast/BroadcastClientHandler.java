@@ -102,8 +102,9 @@ public class BroadcastClientHandler extends Thread{
         
         switch(subSequence){
             case "QUIT": clientWantsOut=true;break;
-            case "WHO":getAllConnectedClients();System.out.println("who is there");break;
+            case "WHO":getAllConnectedClients();break;
             case "NAME": break;
+            
             default: sendMessage("Command not recognized");break;
         }
         

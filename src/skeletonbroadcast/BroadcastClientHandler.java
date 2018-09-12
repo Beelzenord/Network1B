@@ -27,25 +27,27 @@ public class BroadcastClientHandler extends Thread{
     protected BufferedReader in;
     protected PrintWriter out;
     protected boolean clientWantsOut;
-    protected UserInfo currentUser;
+    
     protected ObjectOutputStream os;
     protected String nickName;
     public BroadcastClientHandler(Socket incoming, int id){
         this.clientWantsOut = false;
         this.incoming = incoming;
         this.id = id;
-        currentUser = new UserInfo(id);
+        
         if(incoming!=null){
             try {
                 in = new BufferedReader(new InputStreamReader(incoming.getInputStream()));
                 out = new PrintWriter(new OutputStreamWriter(incoming.getOutputStream()));
-                //outListClientStream = new 
-              //  os = new ObjectOutputStream(incoming.getOutputStream());
+                
             } catch (IOException ex) {
                 Logger.getLogger(BroadcastClientHandler.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
+    /**
+     * sends a message to client
+     */
     public synchronized void sendMessage(String msg){
         if(out!=null){
             out.println(msg);
@@ -93,20 +95,26 @@ public class BroadcastClientHandler extends Thread{
             
         }
     }
-
+    /*Server specific commands
+    * 
+    */
     private void serverCommands(String subSequence) {
         
         switch(subSequence){
             case "QUIT": clientWantsOut=true;break;
-            case "WHO":sendObject();System.out.println("who is there");break;
+            case "WHO":getAllConnectedClients();System.out.println("who is there");break;
             case "NAME": break;
             default: sendMessage("Command not recognized");break;
         }
         
     }
-
+    /**
+     * takes the Hashset from server main and converts it to an iterator
+     * so that we can have each live thread to send a message to its
+     * corresponding client, hence the broadcast.
+     */
     private void doBroadcast(String string) {
-       Iterator iter = Server.activeClients.iterator();
+       Iterator iter = Server.getIterableOfClients();//Server.activeClients.iterator();
        while(iter.hasNext()){
            BroadcastClientHandler t = (BroadcastClientHandler) iter.next();
            if(t!=this){
@@ -115,29 +123,27 @@ public class BroadcastClientHandler extends Thread{
        }
     }
 
-    public UserInfo getCurrentUser() {
-        return this.currentUser;
-    }
-
-    
-    
-    private synchronized void sendObject() {
+   
+     /**
+     * Takes the iterator from main server thread, finds out who's connected,
+     * and send it to the user
+     * 
+     */
+    private void getAllConnectedClients() {
         //To change body of generated methods, choose Tools | Templates.
-        ArrayList<String> users = new ArrayList<>();
-        Iterator iter = Server.activeClients.iterator();
-       while(iter.hasNext()){
-           BroadcastClientHandler t = (BroadcastClientHandler) iter.next();
-           if(t==this){
-               users.add(Integer.toString(id)+ "(you)");
-           }
-           else{
-                users.add(Integer.toString(t.id));   
-           }
-       }
-       if(out!=null){
-           out.println(users);
-           out.flush();
-       }
+         Iterator iter = Server.getIterableOfClients();
+         
+         while(iter.hasNext()){
+              BroadcastClientHandler t = (BroadcastClientHandler) iter.next();
+              if(t==this){
+                  sendMessage(this.id+ "(you)");
+              }
+              else{
+                  sendMessage(Integer.toString(t.id));
+              }
+              
+         }
     }
     
 }
+

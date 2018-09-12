@@ -16,6 +16,8 @@ import java.util.logging.Logger;
 /**
  *
  * @author fno
+ * this class displays text to the user asynchronously while the main
+ * Client thread may write to it
  */
 public class ClientListener extends Thread{
     private BufferedReader in ;
@@ -28,18 +30,9 @@ public class ClientListener extends Thread{
        
             try {
                  while(true){
-                     Object toClient = in.readLine();
-                      if(toClient instanceof ArrayList<?>){
-                         ArrayList<String> tmp = (ArrayList<String>) toClient;
-                         Iterator iter = tmp.iterator();
-                         while(iter.hasNext()){
-                             System.out.println(iter.next());     
-                         }
-                     }
-                      else if(toClient instanceof String){
-                         System.out.println(((String) toClient).trim());   
-                     }
-                     else if(toClient==null){
+                     String toClient = in.readLine();
+                     System.out.println(((String) toClient).trim());   
+                     if(toClient==null){
                          System.out.println("BREAK OFF");
                          break;
                      }

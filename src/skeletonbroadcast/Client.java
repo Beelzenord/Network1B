@@ -34,8 +34,8 @@ public class Client {
             socket = new Socket(host,8010);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-            if(socket.isConnected()){
-            
+            if(socket.isConnected()){ // if the conncetion is successful then we start a listener thread
+                                     
                 listener = new ClientListener(in);
                 listener.start();
                 System.out.println("Listener activated...");

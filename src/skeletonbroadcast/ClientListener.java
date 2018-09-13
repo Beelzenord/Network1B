@@ -41,8 +41,12 @@ public class ClientListener extends Thread{
                  }
                 
             } catch (IOException ex) {
-                Logger.getLogger(ClientListener.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Input/output error");
+             //   Logger.getLogger(ClientListener.class.getName()).log(Level.SEVERE, null, ex);
             }
+              catch(NullPointerException ex){
+                  System.out.println("Failure, unable to hear from server...");
+              }
             
         
     }

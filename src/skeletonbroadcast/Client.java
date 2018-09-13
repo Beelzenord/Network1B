@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Scanner;
 
 /**
  *
@@ -20,8 +21,8 @@ public class Client {
     private static ClientListener listener;
     public static void main(String[] args){
         Socket socket =null;
-         BufferedReader inFromUser
-                = new BufferedReader(new InputStreamReader(System.in));
+        
+         Scanner sc = new Scanner(System.in);
         try {
             String host;
             if(args.length > 0){
@@ -39,11 +40,10 @@ public class Client {
                 System.out.println("Listener activated...");
             }
          
-            
             String fromClient = "";
             while(listener.isAlive()){
-               
-                fromClient = inFromUser.readLine();
+               fromClient = sc.nextLine();
+                //fromClient = inFromUser.readLine();
                // Sy stem.out.println("from Client : " + fromClient);
                 if(listener.isAlive()){
                     out.println(fromClient);
@@ -52,8 +52,8 @@ public class Client {
 
             }
         } catch (IOException ex) {
-            System.out.println("Could not establish connection to server");
-            ex.printStackTrace();
+            System.out.println("It looks likes the server unexpected crash");
+           // ex.printStackTrace();
         }
         finally{
             try {

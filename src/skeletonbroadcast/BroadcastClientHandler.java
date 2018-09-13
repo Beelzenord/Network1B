@@ -12,8 +12,10 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Timer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,12 +33,12 @@ public class BroadcastClientHandler extends Thread {
 
     protected ObjectOutputStream os;
     protected String nickName;
-
+    protected Timer sendAlive;
     public BroadcastClientHandler(Socket incoming, int id) {
         this.clientWantsOut = false;
         this.incoming = incoming;
         this.id = id;
-
+         sendAlive = new Timer();
         if (incoming != null) {
             try {
                 in = new BufferedReader(new InputStreamReader(incoming.getInputStream()));
@@ -61,35 +63,47 @@ public class BroadcastClientHandler extends Thread {
     @Override
     public void run() {
         if (in != null && out != null) {
-            sendMessage("Hello! This Java BroadcastEchoServer");
-            sendMessage("Enter BYE to exit");
+            sendMessage("Hello! Welcome to the chat service!");
+           
+             String str = "";
             try {
-                while (!clientWantsOut) {
-                    String str = in.readLine();
-
+                //!clientWantsOut ||
+                while (true ) {
+                   str = in.readLine();
+                   
+                   
+                    
                     if (str == null) {
+                        System.out.println("We may have lost a client");
                         break;
-                    } else if (str.equals("")) {
-
-                    } else if (str.charAt(0) == '/') {
-
+                    }
+                    
+                    else if (str.length()>0 &&str.charAt(0) == '/') {
                         serverCommands(str.trim().substring(1).toUpperCase());
                         System.out.println("Command");
                     } else {
-                        sendMessage("Echo: " + str);
-                        if (str.trim().toUpperCase().equals("BYE")) {
-                            break;
-                        } else {
-                            doBroadcast("Broadcast(" + id + "): " + str);
-                        }
+                        
+                       
+                        
+                       if(str.length()!=0 && (!str.equals(""))){
+                           //sendMessage("Echo: " + str);
+                           doBroadcast("Broadcast(" + id + "): " + str);
+                         }
+                        
                     }
                 }
                 sendMessage("[from Server]=> BYE");
                 doBroadcast("User: " + id + " signing off");
                 incoming.close();
                 Server.activeClients.remove(this);
-            } catch (IOException ex) {
+            } 
+            
+            catch(SocketException se){
+                System.out.println("problem with server");
+            }
+            catch (IOException ex) {
                 System.out.println("Client handler run method");
+                
                 ex.printStackTrace();
             } finally {
                 try {
@@ -121,8 +135,10 @@ public class BroadcastClientHandler extends Thread {
                     getAllConnectedClients();
                     break;
                 case "NAME":
-                    this.nickName = received[1];
+                    //this.nickName = received[1];
+                    nameClient(received[1]);
                     break;
+                case"HELP":sendInstructions();break;
                 default:
                     sendMessage("Command not recognized");
                     break;
@@ -139,6 +155,7 @@ public class BroadcastClientHandler extends Thread {
      * client, hence the broadcast.
      */
     private void doBroadcast(String string) {
+        
         Iterator iter = Server.getIterableOfClients();//Server.activeClients.iterator();
         while (iter.hasNext()) {
             BroadcastClientHandler t = (BroadcastClientHandler) iter.next();
@@ -165,11 +182,40 @@ public class BroadcastClientHandler extends Thread {
                 sendMessage(Integer.toString(t.id) + " " + t.getNickName());
             }
 
+
         }
     }
     
     public String getNickName() {
         return nickName;
+    }
+
+    private void sendInstructions() {
+        String instructions= "Instructions\n(1)'/who' provides a list of all connected users"
+                + "\n(2)'/quit', terminate your connection"
+                + "\n(3)'/name' change nickname"
+                + "\n(4)'/help', provides instructions";
+        sendMessage(instructions);
+    }
+
+    private void nameClient(String newNickName) {
+           Iterator iter = Server.getIterableOfClients();
+           boolean nameAlreadyExist = false;
+           while(iter.hasNext()){
+                BroadcastClientHandler t = (BroadcastClientHandler) iter.next();
+                if(t.nickName!=null){
+                    if(t.nickName.equals(newNickName)){
+                        nameAlreadyExist = true;
+                    }
+                }
+           }
+           if(nameAlreadyExist){
+               sendMessage("Another user has already taken this name, please choose another");
+           }
+           else{
+               this.nickName = newNickName;
+               sendMessage("You've changed you're name to " + this.nickName);
+           }
     }
 
 }

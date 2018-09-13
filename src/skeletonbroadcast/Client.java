@@ -18,7 +18,9 @@ import java.util.Scanner;
  * @author fno
  */
 public class Client {
-    private static ClientListener listener;
+    protected static ClientListener listener;
+    protected static BufferedReader in;
+    protected static PrintWriter out;
     public static void main(String[] args){
         Socket socket =null;
         
@@ -31,8 +33,8 @@ public class Client {
                 host = "localhost";
             }
             socket = new Socket(host,8010);
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
             if(socket.isConnected()){// if the conncetion is successful then we start a listener thread
             
                 listener = new ClientListener(in);
@@ -53,15 +55,19 @@ public class Client {
             }
         } catch (IOException ex) {
             System.out.println("It looks likes the server unexpected crash");
+            out.close();
            // ex.printStackTrace();
         }
         finally{
             try {
                 if (socket != null)
+                    System.out.println("Connection with client closed");
+                    out.close();
                     socket.close();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
+        System.out.println("Exiting");
     }
 }

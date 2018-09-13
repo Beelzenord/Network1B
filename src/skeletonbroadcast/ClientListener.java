@@ -21,18 +21,22 @@ import java.util.logging.Logger;
  */
 public class ClientListener extends Thread{
     private BufferedReader in ;
+    private long serverThreadID;
     public ClientListener(BufferedReader incomingStream){
         this.in = incomingStream;
     }
 
     @Override
     public void run() {
-       
+      
             try {
+                  System.out.println(in.readLine());
+                  
+                  serverThreadID = Long.parseLong(in.readLine().trim());
                  while(true){
                      String toClient = in.readLine();
                      System.out.println(((String) toClient).trim());   
-                     if(toClient==null){
+                     if(toClient.equals("BYE")){
                          System.out.println("BREAK OFF");
                          break;
                      }
@@ -44,11 +48,20 @@ public class ClientListener extends Thread{
                 System.out.println("Input/output error");
              //   Logger.getLogger(ClientListener.class.getName()).log(Level.SEVERE, null, ex);
             }
-              catch(NullPointerException ex){
+              catch(NullPointerException ex)  {
                   System.out.println("Failure, unable to hear from server...");
               }
             
-        
+            finally {
+	            try {
+	                if (in != null) {
+	                    in.close();
+                            System.out.println("Closing incoming stream buffer");
+	                }
+	            } catch (IOException ex) {
+	                System.out.println("could not close incomingStream");
+	            }
+	        }
     }
     
     

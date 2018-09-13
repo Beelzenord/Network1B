@@ -64,11 +64,13 @@ public class BroadcastClientHandler extends Thread {
     public void run() {
         if (in != null && out != null) {
             sendMessage("Hello! Welcome to the chat service!");
-           
+            //sendMessage
+            System.out.println(this.getId());
+            sendMessage(Long.toString(this.getId()));
              String str = "";
             try {
                 //!clientWantsOut ||
-                while (true ) {
+                while (!clientWantsOut ) {
                    str = in.readLine();
                    
                    
@@ -85,7 +87,7 @@ public class BroadcastClientHandler extends Thread {
  
                        if(str.length()!=0 && (!str.equals(""))){
                            //sendMessage("Echo: " + str);
-                           doBroadcast("Broadcast(" + id + "): " + str);
+                           doBroadcast("["+this.eitherIdOrNickname()+"] " + str);
                          }
                         
                     }
@@ -118,7 +120,12 @@ public class BroadcastClientHandler extends Thread {
 
         }
     }
-
+    private String eitherIdOrNickname(){
+        if(this.getNickName()==null){
+            return Integer.toString(this.getUserId());
+        }
+        return this.getNickName();
+    }
     /*Server specific commands
     * 
      */
@@ -174,14 +181,32 @@ public class BroadcastClientHandler extends Thread {
 
         while (iter.hasNext()) {
             BroadcastClientHandler t = (BroadcastClientHandler) iter.next();
-            if (t == this) {
-                sendMessage(this.id + nickName);
-            } else {
-                sendMessage(Integer.toString(t.id) + " " + t.getNickName());
+            String tmp = null;
+            if(t==this){
+                tmp = "[User "+Integer.toString(this.getUserId())+ "]";
+                if(this.nickName!=null){
+                    tmp += " " + this.nickName; 
+                }
+                
             }
+            else{
+                   tmp = "[User "+Integer.toString(t.getUserId())+ "]";
+                if(t.getNickName()!=null){
+                    tmp += " " + t.getNickName(); 
+                }
+                
+                
+            }
+             sendMessage(tmp);
+           
+            
 
 
         }
+    }
+
+    public int getUserId() {
+        return id;
     }
     
     public String getNickName() {

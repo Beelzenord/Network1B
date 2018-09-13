@@ -82,9 +82,7 @@ public class BroadcastClientHandler extends Thread {
                         serverCommands(str.trim().substring(1).toUpperCase());
                         System.out.println("Command");
                     } else {
-                        
-                       
-                        
+ 
                        if(str.length()!=0 && (!str.equals(""))){
                            //sendMessage("Echo: " + str);
                            doBroadcast("Broadcast(" + id + "): " + str);

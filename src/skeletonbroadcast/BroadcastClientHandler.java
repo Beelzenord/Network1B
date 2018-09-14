@@ -101,7 +101,7 @@ public class BroadcastClientHandler extends Thread {
                 
             } 
             catch(NullPointerException ex){
-                System.out.println("We may have lost a client...");
+                System.out.println("Connection with client abrupty lost");
             }
             catch(SocketException se){
                 System.out.println("problem with server");
@@ -115,6 +115,7 @@ public class BroadcastClientHandler extends Thread {
           
             finally {
                 try {
+                    System.out.println("Client down");
                     doBroadcast("User: " + this.eitherIdOrNickname() + " disconnected");
                     incoming.close();
                     Server.activeClients.remove(this);

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -25,14 +26,26 @@ public class Client {
         Socket socket =null;
         
          Scanner sc = new Scanner(System.in);
+         
         try {
             String host;
-            if(args.length > 0){
+           /* if(args.length > 0){
+                
                 host = args[0];
             }else{
                 host = "localhost";
+            }*/
+            if(args.length < 2){
+                System.out.println("please insert two arguments corresponding with the address and the port respectively");
             }
-            socket = new Socket(host,8010);
+            if(args[0].equals("localhost")){
+                socket = new Socket(args[0],8010);
+            }
+            else{
+                 InetAddress addr = InetAddress.getByName(args[0]);
+                 socket = new Socket(addr,8010);
+            }
+           
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
             if(socket.isConnected()){// if the conncetion is successful then we start a listener thread

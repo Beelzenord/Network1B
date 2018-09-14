@@ -39,7 +39,7 @@ public class Server {
        
         int i =  1;
         try {
-            InetAddress addr = InetAddress.getByName("127.0.0.1");
+          //  InetAddress addr = InetAddress.getByName("130.229.172.193");
 
             ServerSocket s = new ServerSocket(8010);
             

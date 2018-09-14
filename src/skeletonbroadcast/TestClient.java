@@ -13,17 +13,18 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.Timer;
 
 /**
  *
  * @author Niklas
  */
-public class ClientTester {
+public class TestClient {
     protected static ClientListener listener;
     protected static BufferedReader in;
     protected static PrintWriter out;
     
-    public ClientTester(String[] args) {
+    public TestClient(String[] args) {
                 Socket socket = null;
 
         Scanner sc = new Scanner(System.in);
@@ -31,17 +32,23 @@ public class ClientTester {
         try {
             String host = "localhost";
             int port = 8010;
-            if (args.length == 2) {
-                host = args[0];
-                port = Integer.parseInt(args[1]);
-            } else if (args.length == 1) {
-                port = Integer.parseInt(args[0]);
-            } else if (args.length > 2) {
-                throw new IllegalArgumentException();
+//            if (args.length == 2) {
+//                host = args[0];
+//                port = Integer.parseInt(args[1]);
+//            } else if (args.length == 1) {
+//                port = Integer.parseInt(args[0]);
+//            } else if (args.length > 2) {
+//                throw new IllegalArgumentException();
+//            }
+            int len = 1000;
+            if (args.length > 0){
+//                System.out.println("args: " + args[0]);
+                len = Integer.parseInt(args[0]);
             }
             InetAddress addr = InetAddress.getByName(host);
             socket = new Socket(addr, port);
-
+            Timer t = new Timer();
+            t.schedule(new TestTask(socket), len);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
             if (socket.isConnected()) {// if the conncetion is successful then we start a listener thread

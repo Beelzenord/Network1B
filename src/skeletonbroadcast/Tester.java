@@ -15,11 +15,16 @@ import java.util.ArrayList;
 public class Tester {
     public static void main(String[] args) throws InterruptedException {
         int nr = Integer.parseInt(args[0]);
+        int delay = 0;
+        String[] str = new String[1];
+        if (args.length > 1)
+            str[0] = args[1];
+        
         ArrayList<Thread> threads = new ArrayList();
         for (int i = 0; i < nr; i++) {
             Thread.sleep(40);
             Runnable r = () -> {
-                new ClientTester(new String[0]);
+                new TestClient(str);
             };
             Thread t = new Thread(r);
             threads.add(t);

@@ -44,7 +44,7 @@ public class Client {
             }
             InetAddress addr = InetAddress.getByName(host);
             socket = new Socket(addr, port);
-
+            
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
             if (socket.isConnected()) {// if the conncetion is successful then we start a listener thread

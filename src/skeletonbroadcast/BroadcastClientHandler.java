@@ -17,6 +17,7 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Timer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -105,7 +106,7 @@ public class BroadcastClientHandler extends Thread {
             } catch(NullPointerException ex){
                 System.out.println("Connection with client abrupty lost");
             } catch(SocketException se){
-                System.out.println("Problem with server");
+                System.out.println("Could not read from socket handeling client");
             } catch (IOException ex) {
                 System.out.println("Client handler run method");
             } 
@@ -115,8 +116,9 @@ public class BroadcastClientHandler extends Thread {
                 try {
                     System.out.println("Client down");
                     doBroadcast("User: " + this.eitherIdOrNickname() + " disconnected");
-                    incoming.close();
-                    Server.activeClients.remove(this);
+                    Server.removeClient(this);
+                    if (incoming != null)
+                        incoming.close();
                     if (in != null) {
                         in.close();
                     }
@@ -125,7 +127,10 @@ public class BroadcastClientHandler extends Thread {
                     }
                 } catch (IOException ex) {
                     System.out.println("could not close in stream in client handler");
-                }
+                } catch (java.util.ConcurrentModificationException ex) {
+                    System.out.println("Too many clients disconnecting simutainiously causing concurrency issues, "
+                            + "thread will close in a few minutes.");;
+                } 
             }
 
         }
@@ -176,13 +181,14 @@ public class BroadcastClientHandler extends Thread {
      * we can have each live thread to send a message to its corresponding
      * client, hence the broadcast.
      */
-    private void doBroadcast(String string) {
-        
+    private synchronized void doBroadcast(String string) {
+//        Server.doSyncBroadcast(this, string);
         Iterator iter = Server.getIterableOfClients();//Server.activeClients.iterator();
         while (iter.hasNext()) {
             BroadcastClientHandler t = (BroadcastClientHandler) iter.next();
             if (t != this) {
-                t.sendMessage(string);
+                if (t != null)
+                    t.sendMessage(string);
             }
         }
     }

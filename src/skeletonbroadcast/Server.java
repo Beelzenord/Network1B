@@ -29,6 +29,9 @@ public class Server {
     public static synchronized Iterator getIterableOfClients(){
         return activeClients.iterator();
     }
+    public static synchronized void removeClient(BroadcastClientHandler clientHandler) {
+        activeClients.remove(clientHandler);
+    }
    
     /**
      * 
@@ -72,5 +75,21 @@ public class Server {
         }
     }
     
-    
+    /**
+     * Can be used to close many client without concurrency or deadlock issues.
+     * Main thread is busy when this is done which means new clients cannot connect. 
+     * @param me The thread to be closed. 
+     * @param message The message to be sent to other connected clients. 
+     */
+    public static synchronized void doSyncBroadcast(Thread me, String message) {
+        Iterator iter = activeClients.iterator();
+        while (iter.hasNext()) {
+            BroadcastClientHandler t = (BroadcastClientHandler) iter.next();
+            if (t != me) {
+                if (t != null)
+                    t.sendMessage(message);
+            }
+        }
+        System.out.println("Disconnected: " + me.getId() );
+    }
 }

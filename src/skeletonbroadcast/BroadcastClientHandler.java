@@ -14,6 +14,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Timer;
 import java.util.logging.Level;
@@ -65,8 +66,8 @@ public class BroadcastClientHandler extends Thread {
         if (in != null && out != null) {
             sendMessage("Hello! Welcome to the chat service!");
             //sendMessage
-            System.out.println(this.getId());
-            sendMessage(Long.toString(this.getId()));
+           // System.out.println(this.getId());
+          //  sendMessage(Long.toString(this.getId()));
              String str = "";
             try {
                 //!clientWantsOut ||
@@ -75,14 +76,18 @@ public class BroadcastClientHandler extends Thread {
                    
                    
                     
-                    if (str == null) {
-                        System.out.println("We may have lost a client");
-                        break;
-                    }
+                  /*  if (str == null) {
+                       // throw new NullPointerException("We may have lost a client");
+                       // System.out.println("We may have lost a client");
+                       // break;
+                    }*/
                     
-                    else if (str.length()>0 &&str.charAt(0) == '/') {
+                     if (str.length()>0 &&str.charAt(0) == '/') {
+                        /*if(str.trim().substring(1)==null){
+                            
+                        }*/
                         serverCommands(str.trim().substring(1).toUpperCase());
-                        System.out.println("Command");
+                       
                     } else {
  
                        if(str.length()!=0 && (!str.equals(""))){
@@ -92,12 +97,12 @@ public class BroadcastClientHandler extends Thread {
                         
                     }
                 }
-                sendMessage("[from Server]=> BYE");
-                doBroadcast("User: " + id + " signing off");
-                incoming.close();
-                Server.activeClients.remove(this);
+                sendMessage("BYE");
+                
             } 
-            
+            catch(NullPointerException ex){
+                System.out.println("Connection with client abrupty lost");
+            }
             catch(SocketException se){
                 System.out.println("problem with server");
             }
@@ -105,8 +110,15 @@ public class BroadcastClientHandler extends Thread {
                 System.out.println("Client handler run method");
                 
                 ex.printStackTrace();
-            } finally {
+            } 
+            
+          
+            finally {
                 try {
+                    System.out.println("Client down");
+                    doBroadcast("User: " + this.eitherIdOrNickname() + " disconnected");
+                    incoming.close();
+                    Server.activeClients.remove(this);
                     if (in != null) {
                         in.close();
                     }
@@ -141,11 +153,18 @@ public class BroadcastClientHandler extends Thread {
                     break;
                 case "NAME":
                     //this.nickName = received[1];
-                    nameClient(received[1]);
+                    if(received.length<=1){
+                    //System.out.println(received.length + " " + Arrays.toString(received));
+                        sendMessage("error: you have inserted no argument");
+                    }
+                    else{
+                        nameClient(received[1]);
+                    }
+                    
                     break;
                 case"HELP":sendInstructions();break;
                 default:
-                    sendMessage("Command not recognized");
+                    sendMessage("error: command not recognized");
                     break;
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
@@ -182,7 +201,7 @@ public class BroadcastClientHandler extends Thread {
         while (iter.hasNext()) {
             BroadcastClientHandler t = (BroadcastClientHandler) iter.next();
             String tmp = null;
-            if(t==this){
+          /*  if(t==this){
                 tmp = "[User "+Integer.toString(this.getUserId())+ "]";
                 if(this.nickName!=null){
                     tmp += " " + this.nickName; 
@@ -196,12 +215,13 @@ public class BroadcastClientHandler extends Thread {
                 }
                 
                 
-            }
+            }*/
+             tmp = "[User "+Integer.toString(t.getUserId())+ "]";
+                if(t.getNickName()!=null){
+                    tmp += " " + t.getNickName(); 
+                }
              sendMessage(tmp);
            
-            
-
-
         }
     }
 

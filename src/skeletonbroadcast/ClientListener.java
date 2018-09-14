@@ -14,9 +14,7 @@ import java.io.IOException;
  * main Client thread may write to it
  */
 public class ClientListener extends Thread {
-
     private BufferedReader in;
-    private long serverThreadID;
 
     public ClientListener(BufferedReader incomingStream) {
         this.in = incomingStream;
@@ -24,19 +22,18 @@ public class ClientListener extends Thread {
 
     @Override
     public void run() {
-
         try {
             System.out.println(in.readLine());
-
-            serverThreadID = Long.parseLong(in.readLine().trim());
+            String toClient = "";
             while (true) {
-                String toClient = in.readLine();
+                toClient = in.readLine();
                 System.out.println(((String) toClient).trim());
-                if (toClient.equals("[from Server]=> BYE")) {
+                if (toClient.equals("BYE")) {
                     System.out.println("BREAK OFF");
                     break;
                 }
             }
+            System.out.println("terminating");
 
         } catch (IOException ex) {
             System.out.println("Input/output error");

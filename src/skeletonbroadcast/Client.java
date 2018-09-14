@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -27,22 +28,21 @@ public class Client {
         Socket socket = null;
 
         Scanner sc = new Scanner(System.in);
+
         try {
             String host = "localhost";
             int port = 8010;
             if (args.length == 2) {
                 host = args[0];
-                port = Integer.parseInt(args[1]); 
-            }
-            else if (args.length == 1) {
+                port = Integer.parseInt(args[1]);
+            } else if (args.length == 1) {
                 port = Integer.parseInt(args[0]);
-            } 
-            else if (args.length > 2) {
+            } else if (args.length > 2) {
                 throw new IllegalArgumentException();
             }
-            
-            System.out.println("Host: " + host + "\nPort: " + port);
-            socket = new Socket(host, port);
+            InetAddress addr = InetAddress.getByName(host);
+            socket = new Socket(addr, port);
+
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
             if (socket.isConnected()) {// if the conncetion is successful then we start a listener thread
@@ -51,22 +51,21 @@ public class Client {
                 listener.start();
                 System.out.println("Listener activated...");
             }
-            
+
             String fromClient = "";
-            while (listener.isAlive()) {
-                fromClient = sc.nextLine();
-                if (listener.isAlive()) {
+            while (listener.isAlive() && (fromClient = sc.nextLine()) != null) {
+                if (listener.isAlive()) { // check if the listener thread is alive
                     out.println(fromClient);
                     out.flush();
                 }
-
             }
+            
         } catch (IllegalArgumentException ex) {
             System.out.println("USAGE: java Client");
             System.out.println("USAGE: java Client 'port'");
             System.out.println("USAGE: java Client 'host' 'port'");
         } catch (NullPointerException ex) {
-            
+
         } catch (IOException ex) {
             System.out.println("It looks likes the server unexpected crash");
         } finally {
@@ -75,8 +74,9 @@ public class Client {
                     System.out.println("Connection with client closed");
                     socket.close();
                 }
-                if (out != null)
+                if (out != null) {
                     out.close();
+                }
             } catch (IOException ex) {
 
             }

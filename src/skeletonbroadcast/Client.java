@@ -37,13 +37,15 @@ public class Client {
             }*/
             if(args.length < 2){
                 System.out.println("please insert two arguments corresponding with the address and the port respectively");
+                return;
             }
+            int port = Integer.parseInt(args[1]);
             if(args[0].equals("localhost")){
-                socket = new Socket(args[0],8010);
+                socket = new Socket(args[0],port);
             }
             else{
                  InetAddress addr = InetAddress.getByName(args[0]);
-                 socket = new Socket(addr,8010);
+                 socket = new Socket(addr,port);
             }
            
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));

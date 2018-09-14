@@ -13,74 +13,84 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author fno
  */
 public class Client {
+
     protected static ClientListener listener;
     protected static BufferedReader in;
     protected static PrintWriter out;
-    public static void main(String[] args){
-        Socket socket =null;
-        
-         Scanner sc = new Scanner(System.in);
-         
+
+    public static void main(String[] args) {
+        Socket socket = null;
+
+        Scanner sc = new Scanner(System.in);
+
         try {
-            String host;
-           /* if(args.length > 0){
-                
+            String host = "localhost";
+            int port = 8010;
+            if (args.length == 2) {
                 host = args[0];
-            }else{
-                host = "localhost";
-            }*/
-            if(args.length < 2){
-                System.out.println("please insert two arguments corresponding with the address and the port respectively");
-                return;
+                port = Integer.parseInt(args[1]);
+            } else if (args.length == 1) {
+                port = Integer.parseInt(args[0]);
+            } else if (args.length > 2) {
+                throw new IllegalArgumentException();
             }
-            int port = Integer.parseInt(args[1]);
-            if(args[0].equals("localhost")){
-                socket = new Socket(args[0],port);
-            }
-            else{
-                 InetAddress addr = InetAddress.getByName(args[0]);
-                 socket = new Socket(addr,port);
-            }
-           
+            InetAddress addr = InetAddress.getByName(host);
+            socket = new Socket(addr, port);
+            
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-            if(socket.isConnected()){// if the conncetion is successful then we start a listener thread
-            
+            if (socket.isConnected()) {// if the conncetion is successful then we start a listener thread
+
                 listener = new ClientListener(in);
                 listener.start();
                 System.out.println("Listener activated...");
             }
-         
+            
             String fromClient = "";
-            while(listener.isAlive() &&  (fromClient = sc.nextLine())!=null){
-              
-                if(listener.isAlive()){ // check if the listener thread is alive
+            while (listener.isAlive() && (fromClient = sc.nextLine()) != null) {
+                if (listener.isAlive()) { // check if the listener thread is alive
                     out.println(fromClient);
                     out.flush();
                 }
-
             }
+            
+        } catch (IllegalArgumentException ex) {
+            System.out.println("USAGE: java Client");
+            System.out.println("USAGE: java Client 'port'");
+            System.out.println("USAGE: java Client 'host' 'port'");
+        } catch (NullPointerException ex) {
+
         } catch (IOException ex) {
             System.out.println("It looks likes the server unexpected crash");
-            //out.close();
-           // ex.printStackTrace();
-        }
-        finally{
+        } finally {
             try {
-                if (socket != null)
-                    System.out.println("Closing socket");
-                    out.close();
+                if (socket != null) {
+                    System.out.println("Connection with client closed");
                     socket.close();
+                }
+                if (out != null) {
+                    out.close();
+                }
             } catch (IOException ex) {
-                ex.printStackTrace();
+
             }
         }
         System.out.println("Exiting");
     }
 }
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+//package skeletonbroadcast;
+
+

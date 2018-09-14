@@ -18,54 +18,67 @@ import java.util.Scanner;
  * @author fno
  */
 public class Client {
+
     protected static ClientListener listener;
     protected static BufferedReader in;
     protected static PrintWriter out;
-    public static void main(String[] args){
-        Socket socket =null;
-        
-         Scanner sc = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        Socket socket = null;
+
+        Scanner sc = new Scanner(System.in);
         try {
-            String host;
-            if(args.length > 0){
+            String host = "localhost";
+            int port = 8010;
+            if (args.length == 2) {
                 host = args[0];
-            }else{
-                host = "localhost";
+                port = Integer.parseInt(args[1]); 
             }
-            socket = new Socket(host,8010);
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-            if(socket.isConnected()){// if the conncetion is successful then we start a listener thread
+            else if (args.length == 1) {
+                port = Integer.parseInt(args[0]);
+            } 
+            else if (args.length > 2) {
+                throw new IllegalArgumentException();
+            }
             
+            System.out.println("Host: " + host + "\nPort: " + port);
+            socket = new Socket(host, port);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            if (socket.isConnected()) {// if the conncetion is successful then we start a listener thread
+
                 listener = new ClientListener(in);
                 listener.start();
                 System.out.println("Listener activated...");
             }
-         
+            
             String fromClient = "";
-            while(listener.isAlive()){
-               fromClient = sc.nextLine();
-                //fromClient = inFromUser.readLine();
-               // Sy stem.out.println("from Client : " + fromClient);
-                if(listener.isAlive()){
+            while (listener.isAlive()) {
+                fromClient = sc.nextLine();
+                if (listener.isAlive()) {
                     out.println(fromClient);
                     out.flush();
                 }
 
             }
+        } catch (IllegalArgumentException ex) {
+            System.out.println("USAGE: java Client");
+            System.out.println("USAGE: java Client 'port'");
+            System.out.println("USAGE: java Client 'host' 'port'");
+        } catch (NullPointerException ex) {
+            
         } catch (IOException ex) {
             System.out.println("It looks likes the server unexpected crash");
-            out.close();
-           // ex.printStackTrace();
-        }
-        finally{
+        } finally {
             try {
-                if (socket != null)
+                if (socket != null) {
                     System.out.println("Connection with client closed");
-                    out.close();
                     socket.close();
+                }
+                if (out != null)
+                    out.close();
             } catch (IOException ex) {
-                ex.printStackTrace();
+
             }
         }
         System.out.println("Exiting");

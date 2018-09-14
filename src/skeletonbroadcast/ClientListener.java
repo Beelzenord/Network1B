@@ -7,62 +7,51 @@
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
- * @author fno
- * this class displays text to the user asynchronously while the main
- * Client thread may write to it
+ * @author fno this class displays text to the user asynchronously while the
+ * main Client thread may write to it
  */
-public class ClientListener extends Thread{
-    private BufferedReader in ;
+public class ClientListener extends Thread {
+
+    private BufferedReader in;
     private long serverThreadID;
-    public ClientListener(BufferedReader incomingStream){
+
+    public ClientListener(BufferedReader incomingStream) {
         this.in = incomingStream;
     }
 
     @Override
     public void run() {
-      
-            try {
-                  System.out.println(in.readLine());
-                  
-                  serverThreadID = Long.parseLong(in.readLine().trim());
-                 while(true){
-                     String toClient = in.readLine();
-                     System.out.println(((String) toClient).trim());   
-                     if(toClient.equals("BYE")){
-                         System.out.println("BREAK OFF");
-                         break;
-                     }
-                    
-                     
-                 }
-                
-            } catch (IOException ex) {
-                System.out.println("Input/output error");
-             //   Logger.getLogger(ClientListener.class.getName()).log(Level.SEVERE, null, ex);
+
+        try {
+            System.out.println(in.readLine());
+
+            serverThreadID = Long.parseLong(in.readLine().trim());
+            while (true) {
+                String toClient = in.readLine();
+                System.out.println(((String) toClient).trim());
+                if (toClient.equals("[from Server]=> BYE")) {
+                    System.out.println("BREAK OFF");
+                    break;
+                }
             }
-              catch(NullPointerException ex)  {
-                  System.out.println("Failure, unable to hear from server...");
-              }
-            
-            finally {
-	            try {
-	                if (in != null) {
-	                    in.close();
-                            System.out.println("Closing incoming stream buffer");
-	                }
-	            } catch (IOException ex) {
-	                System.out.println("could not close incomingStream");
-	            }
-	        }
+
+        } catch (IOException ex) {
+            System.out.println("Input/output error");
+        } catch (NullPointerException ex) {
+            System.out.println("Failure, unable to hear from server...");
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                    System.out.println("Closing incoming stream buffer");
+                }
+            } catch (IOException ex) {
+                System.out.println("could not close incomingStream");
+            }
+        }
     }
-    
-    
+
 }

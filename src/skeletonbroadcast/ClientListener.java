@@ -32,9 +32,11 @@ public class ClientListener extends Thread{
             try {
                   System.out.println(in.readLine());
                   
-                  serverThreadID = Long.parseLong(in.readLine().trim());
-                 while(true){
-                     String toClient = in.readLine();
+                 // serverThreadID = Long.parseLong(in.readLine().trim());
+                  String toClient="";
+                 // while((toClient = in.readLine())!=null){
+                  while(true){
+                      toClient = in.readLine();
                      System.out.println(((String) toClient).trim());   
                      if(toClient.equals("BYE")){
                          System.out.println("BREAK OFF");
@@ -43,7 +45,7 @@ public class ClientListener extends Thread{
                     
                      
                  }
-                
+                System.out.println("terminating");
             } catch (IOException ex) {
                 System.out.println("Input/output error");
              //   Logger.getLogger(ClientListener.class.getName()).log(Level.SEVERE, null, ex);

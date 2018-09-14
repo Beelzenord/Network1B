@@ -34,7 +34,7 @@ public class Client {
             }
             socket = new Socket(host,8010);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
             if(socket.isConnected()){// if the conncetion is successful then we start a listener thread
             
                 listener = new ClientListener(in);
@@ -43,11 +43,9 @@ public class Client {
             }
          
             String fromClient = "";
-            while(listener.isAlive()){
-               fromClient = sc.nextLine();
-                //fromClient = inFromUser.readLine();
-               // Sy stem.out.println("from Client : " + fromClient);
-                if(listener.isAlive()){
+            while(listener.isAlive() &&  (fromClient = sc.nextLine())!=null){
+              
+                if(listener.isAlive()){ // check if the listener thread is alive
                     out.println(fromClient);
                     out.flush();
                 }
@@ -55,13 +53,13 @@ public class Client {
             }
         } catch (IOException ex) {
             System.out.println("It looks likes the server unexpected crash");
-            out.close();
+            //out.close();
            // ex.printStackTrace();
         }
         finally{
             try {
                 if (socket != null)
-                    System.out.println("Connection with client closed");
+                    System.out.println("Closing socket");
                     out.close();
                     socket.close();
             } catch (IOException ex) {

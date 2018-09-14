@@ -6,6 +6,7 @@
 //package skeletonbroadcast;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -19,6 +20,8 @@ import java.util.logging.Logger;
  *
  * @author fno
  * Source : "Object-Oriented Software Development Using Java" - Xiaoping Jia
+ * Material used: client-sever echo program, multithreading and broadcast. 
+ * 
  * 
  */
 public class Server {
@@ -36,14 +39,17 @@ public class Server {
        
         int i =  1;
         try {
+            InetAddress addr = InetAddress.getByName("127.0.0.1");
+
             ServerSocket s = new ServerSocket(8010);
+            
             System.out.println("Server started... ");
             while(true){
                 Socket incoming = s.accept();
                 System.out.println("New Client connecting...");
                 BroadcastClientHandler newClient = new BroadcastClientHandler(incoming,i++);
                 activeClients.add(newClient);
-                System.out.println("So far " + activeClients.size());
+                System.out.println("So far " + activeClients.size() + " connected users");
                 newClient.start();
             }
         } catch (IOException ex) {

@@ -39,9 +39,19 @@ public class Server {
        
         int i =  1;
         try {
-          //  InetAddress addr = InetAddress.getByName("130.229.172.193");
-
-            ServerSocket s = new ServerSocket(8010);
+            String host = "localhost";
+            int port = 8010;
+            if (args.length == 2) {
+                host = args[0];
+                port = Integer.parseInt(args[1]);
+            } else if (args.length == 1) {
+                port = Integer.parseInt(args[0]);
+            } else if (args.length > 2) {
+                throw new IllegalArgumentException();
+            }
+            InetAddress addr = InetAddress.getByName(host);
+            ServerSocket s = new ServerSocket(port, 1, addr);
+            
             
             System.out.println("Server started... ");
             while(true){
@@ -52,8 +62,13 @@ public class Server {
                 System.out.println("So far " + activeClients.size() + " connected users");
                 newClient.start();
             }
-        } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalArgumentException ex) {
+            System.out.println("USAGE: java Server");
+            System.out.println("USAGE: java Server 'port'");
+            System.out.println("USAGE: java Server 'host' 'port'");
+        }catch (IOException ex) {
+            System.out.println("Main server thread IOException");
+            ex.printStackTrace();
         }
     }
     

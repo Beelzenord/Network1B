@@ -13,6 +13,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -99,17 +100,14 @@ public class BroadcastClientHandler extends Thread {
                 }
                 sendMessage("BYE");
                 
-            } 
-            catch(NullPointerException ex){
+            } catch (SocketTimeoutException ex) {
+                System.out.println("A client timed out");
+            } catch(NullPointerException ex){
                 System.out.println("Connection with client abrupty lost");
-            }
-            catch(SocketException se){
-                System.out.println("problem with server");
-            }
-            catch (IOException ex) {
+            } catch(SocketException se){
+                System.out.println("Problem with server");
+            } catch (IOException ex) {
                 System.out.println("Client handler run method");
-                
-                ex.printStackTrace();
             } 
             
           

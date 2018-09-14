@@ -13,21 +13,18 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
- * @author fno
+ * @author Niklas
  */
-public class Client {
-
+public class ClientTester {
     protected static ClientListener listener;
     protected static BufferedReader in;
     protected static PrintWriter out;
-
-    public static void main(String[] args) {
-        Socket socket = null;
+    
+    public ClientTester(String[] args) {
+                Socket socket = null;
 
         Scanner sc = new Scanner(System.in);
 
@@ -53,7 +50,7 @@ public class Client {
                 listener.start();
                 System.out.println("Listener activated...");
             }
-            
+
             String fromClient = "";
             while (listener.isAlive() && (fromClient = sc.nextLine()) != null) {
                 if (listener.isAlive()) { // check if the listener thread is alive

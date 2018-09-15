@@ -14,6 +14,7 @@ import java.io.IOException;
  * main Client thread may write to it
  */
 public class ClientListener extends Thread {
+
     private BufferedReader in;
 
     public ClientListener(BufferedReader incomingStream) {

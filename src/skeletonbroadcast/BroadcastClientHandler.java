@@ -14,13 +14,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Random;
 import java.util.Timer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -37,18 +32,26 @@ public class BroadcastClientHandler extends Thread {
     protected ObjectOutputStream os;
     protected String nickName;
     protected Timer sendAlive;
+
     public BroadcastClientHandler(Socket incoming, int id) {
         this.clientWantsOut = false;
         this.incoming = incoming;
         this.id = id;
-         sendAlive = new Timer();
+        sendAlive = new Timer();
         if (incoming != null) {
             try {
                 in = new BufferedReader(new InputStreamReader(incoming.getInputStream()));
                 out = new PrintWriter(new OutputStreamWriter(incoming.getOutputStream()));
 
             } catch (IOException ex) {
-                Logger.getLogger(BroadcastClientHandler.class.getName()).log(Level.SEVERE, null, ex);
+                try {
+                    if (in != null)
+                        in.close();
+                    if (out != null)
+                        out.close();
+                } catch (IOException e) {
+                }
+                System.out.println("Could not establish connection to client");
             }
         }
     }
@@ -67,58 +70,38 @@ public class BroadcastClientHandler extends Thread {
     public void run() {
         if (in != null && out != null) {
             sendMessage("Hello! Welcome to the chat service!");
-            //sendMessage
-           // System.out.println(this.getId());
-          //  sendMessage(Long.toString(this.getId()));
-             String str = "";
+            String str = "";
             try {
-                //!clientWantsOut ||
-                while (!clientWantsOut ) {
-                   str = in.readLine();
-                   
-                   
-                    
-                  /*  if (str == null) {
-                       // throw new NullPointerException("We may have lost a client");
-                       // System.out.println("We may have lost a client");
-                       // break;
-                    }*/
-                    
-                     if (str.length()>0 &&str.charAt(0) == '/') {
-                        /*if(str.trim().substring(1)==null){
-                            
-                        }*/
+                while (!clientWantsOut) {
+                    str = in.readLine();
+
+                    if (str.length() > 0 && str.charAt(0) == '/') {
                         serverCommands(str.trim().substring(1).toUpperCase());
-                       
-                    } else {
- 
-                       if(str.length()!=0 && (!str.equals(""))){
-                           //sendMessage("Echo: " + str);
-                           doBroadcast("["+this.eitherIdOrNickname()+"] " + str);
-                         }
-                        
+                    } 
+                    else {
+                        if (str.length() != 0 && (!str.equals(""))) {
+                            doBroadcast("[" + this.eitherIdOrNickname() + "] " + str);
+                        }
                     }
                 }
                 sendMessage("BYE");
-                
+
             } catch (SocketTimeoutException ex) {
                 System.out.println("A client timed out");
-            } catch(NullPointerException ex){
+            } catch (NullPointerException ex) {
                 System.out.println("Connection with client abrupty lost");
-            } catch(SocketException se){
+            } catch (SocketException se) {
                 System.out.println("Could not read from socket handeling client");
             } catch (IOException ex) {
                 System.out.println("Client handler run method");
-            } 
-            
-          
-            finally {
+            } finally {
                 try {
-                    System.out.println("Client down");
+                    System.out.println("Removing client");
                     doBroadcast("User: " + this.eitherIdOrNickname() + " disconnected");
                     Server.removeClient(this);
-                    if (incoming != null)
+                    if (incoming != null) {
                         incoming.close();
+                    }
                     if (in != null) {
                         in.close();
                     }
@@ -130,20 +113,18 @@ public class BroadcastClientHandler extends Thread {
                 } catch (java.util.ConcurrentModificationException ex) {
                     System.out.println("Too many clients disconnecting simutainiously causing concurrency issues, "
                             + "thread will close in a few minutes.");;
-                } 
+                }
             }
-
         }
     }
-    private String eitherIdOrNickname(){
-        if(this.getNickName()==null){
+
+    private String eitherIdOrNickname() {
+        if (this.getNickName() == null) {
             return Integer.toString(this.getUserId());
         }
         return this.getNickName();
     }
-    /*Server specific commands
-    * 
-     */
+
     private void serverCommands(String subSequence) {
         String[] received = subSequence.split(" ");
         try {
@@ -155,25 +136,22 @@ public class BroadcastClientHandler extends Thread {
                     getAllConnectedClients();
                     break;
                 case "NAME":
-                    //this.nickName = received[1];
-                    if(received.length<=1){
-                    //System.out.println(received.length + " " + Arrays.toString(received));
+                    if (received.length <= 1) {
                         sendMessage("error: you have inserted no argument");
-                    }
-                    else{
+                    } else {
                         nameClient(received[1]);
                     }
-                    
                     break;
-                case"HELP":sendInstructions();break;
+                case "HELP":
+                    sendInstructions();
+                    break;
                 default:
                     sendMessage("error: command not recognized");
                     break;
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
-            ex.printStackTrace();
+            sendMessage("error: command not recognized");
         }
-
     }
 
     /**
@@ -182,13 +160,13 @@ public class BroadcastClientHandler extends Thread {
      * client, hence the broadcast.
      */
     private synchronized void doBroadcast(String string) {
-//        Server.doSyncBroadcast(this, string);
-        Iterator iter = Server.getIterableOfClients();//Server.activeClients.iterator();
+        Iterator iter = Server.getIterableOfClients();
         while (iter.hasNext()) {
             BroadcastClientHandler t = (BroadcastClientHandler) iter.next();
             if (t != this) {
-                if (t != null)
+                if (t != null) {
                     t.sendMessage(string);
+                }
             }
         }
     }
@@ -199,46 +177,28 @@ public class BroadcastClientHandler extends Thread {
      *
      */
     private void getAllConnectedClients() {
-        //To change body of generated methods, choose Tools | Templates.
         Iterator iter = Server.getIterableOfClients();
-
         while (iter.hasNext()) {
             BroadcastClientHandler t = (BroadcastClientHandler) iter.next();
             String tmp = null;
-          /*  if(t==this){
-                tmp = "[User "+Integer.toString(this.getUserId())+ "]";
-                if(this.nickName!=null){
-                    tmp += " " + this.nickName; 
-                }
-                
+            tmp = "[User " + Integer.toString(t.getUserId()) + "]";
+            if (t.getNickName() != null) {
+                tmp += " " + t.getNickName();
             }
-            else{
-                   tmp = "[User "+Integer.toString(t.getUserId())+ "]";
-                if(t.getNickName()!=null){
-                    tmp += " " + t.getNickName(); 
-                }
-                
-                
-            }*/
-             tmp = "[User "+Integer.toString(t.getUserId())+ "]";
-                if(t.getNickName()!=null){
-                    tmp += " " + t.getNickName(); 
-                }
-             sendMessage(tmp);
-           
+            sendMessage(tmp);
         }
     }
 
     public int getUserId() {
         return id;
     }
-    
+
     public String getNickName() {
         return nickName;
     }
 
     private void sendInstructions() {
-        String instructions= "Instructions\n(1)'/who' provides a list of all connected users"
+        String instructions = "Instructions\n(1)'/who' provides a list of all connected users"
                 + "\n(2)'/quit', terminate your connection"
                 + "\n(3)'/name' change nickname"
                 + "\n(4)'/help', provides instructions";
@@ -246,24 +206,22 @@ public class BroadcastClientHandler extends Thread {
     }
 
     private void nameClient(String newNickName) {
-           Iterator iter = Server.getIterableOfClients();
-           boolean nameAlreadyExist = false;
-           while(iter.hasNext()){
-                BroadcastClientHandler t = (BroadcastClientHandler) iter.next();
-                if(t.nickName!=null){
-                    if(t.nickName.equals(newNickName)){
-                        nameAlreadyExist = true;
-                    }
+        Iterator iter = Server.getIterableOfClients();
+        boolean nameAlreadyExist = false;
+        while (iter.hasNext()) {
+            BroadcastClientHandler t = (BroadcastClientHandler) iter.next();
+            if (t.nickName != null) {
+                if (t.nickName.equals(newNickName)) {
+                    nameAlreadyExist = true;
                 }
-           }
-           if(nameAlreadyExist){
-               sendMessage("Another user has already taken this name, please choose another");
-           }
-           else{
-               this.nickName = newNickName;
-               sendMessage("You've changed you're name to " + this.nickName);
-           }
+            }
+        }
+        if (nameAlreadyExist) {
+            sendMessage("Another user has already taken this name, please choose another");
+        } else {
+            this.nickName = newNickName;
+            sendMessage("You've changed you're name to " + this.nickName);
+        }
     }
 
 }
-

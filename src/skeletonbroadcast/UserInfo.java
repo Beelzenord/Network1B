@@ -11,7 +11,8 @@ import java.io.Serializable;
  *
  * @author fno
  */
-public class UserInfo implements Serializable{
+public class UserInfo implements Serializable {
+
     private int id;
     private String nickName;
 
@@ -34,13 +35,13 @@ public class UserInfo implements Serializable{
     public void setNickName(String nickName) {
         this.nickName = nickName;
     }
-    public String getFromWhoCommand(){
-        if(nickName!=null){
+
+    public String getFromWhoCommand() {
+        if (nickName != null) {
             return nickName;
-        }
-        else{
-            return ""+id;
+        } else {
+            return "" + id;
         }
     }
-    
+
 }

@@ -13,8 +13,6 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -44,7 +42,7 @@ public class Client {
             }
             InetAddress addr = InetAddress.getByName(host);
             socket = new Socket(addr, port);
-            
+
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
             if (socket.isConnected()) {// if the conncetion is successful then we start a listener thread
@@ -53,7 +51,7 @@ public class Client {
                 listener.start();
                 System.out.println("Listener activated...");
             }
-            
+
             String fromClient = "";
             while (listener.isAlive() && (fromClient = sc.nextLine()) != null) {
                 if (listener.isAlive()) { // check if the listener thread is alive
@@ -61,7 +59,7 @@ public class Client {
                     out.flush();
                 }
             }
-            
+
         } catch (IllegalArgumentException ex) {
             System.out.println("USAGE: java Client");
             System.out.println("USAGE: java Client 'port'");
@@ -86,11 +84,3 @@ public class Client {
         System.out.println("Exiting");
     }
 }
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-//package skeletonbroadcast;
-
-

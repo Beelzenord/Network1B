@@ -26,7 +26,7 @@ public class TestTask extends TimerTask {
             if (socket != null)
             socket.close();
         } catch (IOException ex) {
-            System.out.println("lul did close socket");
+            System.out.println("did close socket");
         }
     }
 

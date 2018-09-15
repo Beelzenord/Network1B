@@ -17,6 +17,8 @@ import java.util.Scanner;
 /**
  *
  * @author fno
+ * This client is connected to the server via socket,
+ * after connection is proven it is able to write directly to the server.
  */
 public class Client {
 

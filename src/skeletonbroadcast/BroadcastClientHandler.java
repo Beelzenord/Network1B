@@ -20,6 +20,13 @@ import java.util.Timer;
 /**
  *
  * @author fno
+ * 
+ * Server thread that handles client request including broadcasting messages.
+ * also handles disconnection from the client side
+ * 
+ * parts of the code is from "Object-Oriented Software Development Using Java" course book
+      *     by author Xiaoping Jia chapter 12. Parts used were in multithreading and broadcasting.
+ * 
  */
 public class BroadcastClientHandler extends Thread {
 
@@ -32,7 +39,13 @@ public class BroadcastClientHandler extends Thread {
     protected ObjectOutputStream os;
     protected String nickName;
     protected Timer sendAlive;
-
+    
+    /**
+     * Uses the servers sockets for bi-directional communication and
+     * the id for uniquely identifying the user.
+     * @param incoming
+     * @param id 
+     */
     public BroadcastClientHandler(Socket incoming, int id) {
         this.clientWantsOut = false;
         this.incoming = incoming;
@@ -65,7 +78,10 @@ public class BroadcastClientHandler extends Thread {
             out.flush();
         }
     }
-
+    /**Run the thread concurrently
+     * 
+     * 
+    */
     @Override
     public void run() {
         if (in != null && out != null) {
@@ -117,14 +133,21 @@ public class BroadcastClientHandler extends Thread {
             }
         }
     }
-
+    /**
+     * if the user doesn't have a nickname we call it by the ID.
+     * 
+     **/
     private String eitherIdOrNickname() {
         if (this.getNickName() == null) {
             return Integer.toString(this.getUserId());
         }
         return this.getNickName();
     }
-
+     /**
+     * If the user sends a string beginning with '/', the method below
+     * handles the command.
+     * @param string subSequence
+     **/
     private void serverCommands(String subSequence) {
         String[] received = subSequence.split(" ");
         try {
@@ -158,6 +181,9 @@ public class BroadcastClientHandler extends Thread {
      * takes the Hashset from server main and converts it to an iterator so that
      * we can have each live thread to send a message to its corresponding
      * client, hence the broadcast.
+     *  code is from "Object-Oriented Software Development Using Java" course book
+      *     by author Xiaoping Jia chapter 12.
+      * @param string 
      */
     private synchronized void doBroadcast(String string) {
         Iterator iter = Server.getIterableOfClients();
@@ -173,7 +199,7 @@ public class BroadcastClientHandler extends Thread {
 
     /**
      * Takes the iterator from main server thread, finds out who's connected,
-     * and send it to the user
+     * and send it to the user.
      *
      */
     private void getAllConnectedClients() {
@@ -196,7 +222,9 @@ public class BroadcastClientHandler extends Thread {
     public String getNickName() {
         return nickName;
     }
-
+    /**
+     * sends instructions to the user.
+     */
     private void sendInstructions() {
         String instructions = "Instructions\n(1)'/who' provides a list of all connected users"
                 + "\n(2)'/quit', terminate your connection"
@@ -204,7 +232,10 @@ public class BroadcastClientHandler extends Thread {
                 + "\n(4)'/help', provides instructions";
         sendMessage(instructions);
     }
-
+    /**
+     * Prevents client from using an already existing name.
+     * @param newNickName 
+     */
     private void nameClient(String newNickName) {
         Iterator iter = Server.getIterableOfClients();
         boolean nameAlreadyExist = false;

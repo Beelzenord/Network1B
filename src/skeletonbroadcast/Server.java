@@ -16,9 +16,11 @@ import java.util.Set;
 
 /**
  *
- * @author fno Source : "Object-Oriented Software Development Using Java" -
- * Xiaoping Jia Material used: client-sever echo program, multithreading and
- * broadcast.
+ * @author fno 
+ * Material Source : "Object-Oriented Software Development Using Java" - 
+ * by author Xiaoping Jia chapter 12.
+ * Material used: client-sever echo program, hashset to store the users,
+ * multithreading and broadcast.
  *
  *
  */

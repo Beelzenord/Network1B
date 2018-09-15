@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  *
  * @author fno this class displays text to the user asynchronously while the
- * main Client thread may write to it
+ * main Client thread may write to it.
  */
 public class ClientListener extends Thread {
 
